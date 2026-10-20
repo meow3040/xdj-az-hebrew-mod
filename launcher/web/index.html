@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>עברית על הדק</title>
+<link rel="stylesheet" href="/style.css">
+<script src="/app.js" defer></script>
+</head>
+<body>
+<main>
+  <header class="top">
+    <div class="intro">
+      <h1 id="title"><span class="sr">עברית על הדק</span></h1>
+      <p class="lede">מוד העברית של AZ-MODS בשלושה צעדים: לבנות, להעתיק <span class="nw">לדיסק-און-קי</span>, ולהפעיל בדק.</p>
+      <p class="version" id="version"></p>
+    </div>
+    <figure class="deck" aria-label="מסך הדק עם שמות שירים בעברית">
+      <div class="bezel">
+        <ol class="lcd" id="lcd"></ol>
+      </div>
+      <figcaption>כך ייראו השמות בדק, באותן אותיות בדיוק.</figcaption>
+    </figure>
+  </header>
+
+  <section class="steps" aria-label="הצעדים">
+    <article class="step" id="step-build">
+      <div class="led" aria-hidden="true"><span>1</span></div>
+      <div class="body">
+        <h2>בניית המוד</h2>
+        <p class="status" aria-live="polite"></p>
+        <div class="extra"></div>
+      </div>
+      <div class="act"><button class="pad" type="button"></button></div>
+    </article>
+
+    <article class="step" id="step-stick">
+      <div class="led" aria-hidden="true"><span>2</span></div>
+      <div class="body">
+        <h2>העתקה לדיסק-און-קי</h2>
+        <div class="chips" role="radiogroup" aria-label="הדיסק-און-קי"></div>
+        <p class="status" aria-live="polite"></p>
+        <div class="extra"></div>
+      </div>
+      <div class="act"><button class="pad" type="button"></button></div>
+    </article>
+
+    <article class="step" id="step-deck">
+      <div class="led" aria-hidden="true"><span>3</span></div>
+      <div class="body">
+        <h2>הפעלה בדק</h2>
+        <p class="how">להכניס את הדיסק ל-USB&nbsp;1 ולהדליק את הדק. בפעם הראשונה הדק שואל <bdi lang="en">Allow remote access</bdi>, ושם בוחרים <bdi lang="en">Allow</bdi>.</p>
+        <div class="ipline">
+          <label for="ip">כתובת הדק</label>
+          <input id="ip" dir="ltr" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="192.168.1.50">
+          <button class="link" type="button" id="find">חיפוש ברשת</button>
+        </div>
+        <div class="chips found" role="list"></div>
+        <p class="status" aria-live="polite"></p>
+        <div class="extra"></div>
+      </div>
+      <div class="act"><button class="pad" type="button"></button></div>
+    </article>
+  </section>
+
+  <footer class="foot">
+    <button class="link" type="button" id="details-toggle" aria-expanded="false" aria-controls="details">פרטים</button>
+    <button class="link" type="button" id="restore">החזרה ל-AZ-MODS הרשמי</button>
+    <button class="link" type="button" id="folder">תיקיית הלאנצ׳ר</button>
+    <span class="grow"></span>
+    <button class="link" type="button" id="quit">סגירה</button>
+  </footer>
+  <pre class="details" id="details" dir="ltr" hidden></pre>
+</main>
+
+<dialog id="confirm">
+  <form method="dialog">
+    <h3 id="confirm-title"></h3>
+    <p id="confirm-text"></p>
+    <div class="row">
+      <button class="pad" value="yes" id="confirm-yes"></button>
+      <button class="link" value="no">ביטול</button>
+    </div>
+  </form>
+</dialog>
+</body>
+</html>

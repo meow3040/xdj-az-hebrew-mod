@@ -1,0 +1,240 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* The launcher's page: the deck's own materials. A satin top plate, the LCD with its blue
+ * browse cursor, rubber performance pads with an LED rim for the actions, and an LED for
+ * each step's state. */
+:root {
+    --chassis: #d9dee4;
+    --plate: #eef1f4;
+    --line: #c2c9d1;
+    --ink: #151c25;
+    --mute: #566170;
+    --lcd: #0b1622;
+    --lcd-ink: #e2ebf5;
+    --lcd-dim: #7a8ba0;
+    --cursor: #2c6dd6;
+    --pad: #262c35;
+    --pad-top: #313844;
+    --led: #1fcf7d;
+    --amber: #e9962f;
+    --red: #dc4349;
+    --off: #9aa3ad;
+    --focus: #2c6dd6;
+    --ui: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--chassis); }
+body {
+    margin: 0;
+    color: var(--ink);
+    font: 15px/1.55 var(--ui);
+    background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.07) 0 1px, transparent 1px 3px),
+        var(--chassis);
+}
+main { max-width: 1120px; margin: 0 auto; padding: 28px 40px 22px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+bdi { font-weight: 600; }
+.nw { white-space: nowrap; }
+
+/* ---- the top: the title in the deck's own Hebrew letters, beside the deck's screen */
+.top { display: grid; grid-template-columns: 1fr minmax(300px, 470px); gap: 40px; align-items: center; }
+h1 { margin: 0 0 14px; line-height: 0; }
+h1 svg { fill: var(--ink); height: 62px; width: auto; max-width: 100%; }
+.lede { margin: 0; font-size: 18px; max-width: 30em; }
+.version { margin: 10px 0 0; color: var(--mute); font-size: 13px; }
+
+.deck { margin: 0; }
+.bezel {
+    padding: 14px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #2b313a, #1b2028);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.lcd {
+    list-style: none;
+    margin: 0;
+    padding: 6px 0;
+    border-radius: 4px;
+    background: var(--lcd);
+    direction: ltr; /* the deck lays rows out left to right; only the names read right to left */
+    overflow: hidden;
+}
+.lcd li {
+    display: grid;
+    grid-template-columns: 26px 1fr 0.8fr 40px;
+    gap: 10px;
+    align-items: center;
+    height: 34px;
+    padding: 0 12px;
+    color: var(--lcd-ink);
+}
+.lcd li.cursor { background: var(--cursor); }
+.lcd .art { width: 26px; height: 26px; border-radius: 2px; background: #1d2b3b; }
+.lcd li:nth-child(2) .art { background: #3a2a4d; }
+.lcd li:nth-child(3) .art { background: #4a3322; }
+.lcd li:nth-child(4) .art { background: #1f3d35; }
+.lcd li:nth-child(5) .art { background: #42202a; }
+.lcd .name { position: relative; height: 18px; }
+.lcd .name svg { position: absolute; left: 0; top: 0; height: 18px; width: auto; fill: currentColor; }
+.lcd .artist { color: var(--lcd-dim); }
+.lcd li.cursor .artist { color: #cfe0f7; }
+.lcd .bpm { font-size: 12px; text-align: right; color: var(--lcd-dim); font-variant-numeric: tabular-nums; }
+.lcd li.cursor .bpm { color: #e8f1ff; }
+.lcd .boxes { stroke: currentColor; fill: none; stroke-width: 70; opacity: 0.75; }
+.lcd .letters { opacity: 0; }
+.lcd li.on .boxes { opacity: 0; transition: opacity 160ms ease-in; }
+.lcd li.on .letters { opacity: 1; transition: opacity 220ms ease-out 80ms; }
+.deck figcaption { margin-top: 10px; color: var(--mute); font-size: 13px; text-align: center; }
+
+/* ---- the steps: one plate, a row per step */
+.steps {
+    margin-top: 30px;
+    background: var(--plate);
+    border-radius: 12px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 0 0 1px var(--line);
+}
+.step {
+    display: grid;
+    grid-template-columns: 52px 1fr auto;
+    gap: 18px;
+    align-items: start;
+    padding: 20px 28px;
+}
+.step + .step { border-top: 1px solid var(--line); }
+.step h2 { margin: 2px 0 4px; font-size: 18px; font-weight: 600; }
+.step.locked h2, .step.locked .status, .step.locked .how { color: var(--off); }
+.status { margin: 0; color: var(--mute); max-width: 44em; }
+.status.good { color: #157a4b; }
+.status.warn { color: #9a5a0c; }
+.status.bad { color: #b3262d; }
+.how { margin: 0 0 12px; max-width: 46em; }
+.extra:empty { display: none; }
+.extra { margin-top: 10px; display: flex; gap: 14px; flex-wrap: wrap; }
+
+/* the step's LED: off, lit (ready), green (done), amber (needs something), running */
+.led {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: #c9d0d8;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
+    color: #5c6673;
+    font-weight: 700;
+}
+.led span { font-size: 16px; }
+.step.ready .led { background: var(--pad); color: #fff; box-shadow: 0 0 0 3px rgba(31, 207, 125, 0.35); }
+.step.done .led { background: var(--led); color: #06301b; box-shadow: 0 0 12px rgba(31, 207, 125, 0.55); }
+.step.attn .led { background: var(--amber); color: #3b2300; }
+.step.bad .led { background: var(--red); color: #fff; }
+.step.busy .led { background: var(--pad); color: #fff; animation: breathe 1.4s ease-in-out infinite; }
+@keyframes breathe {
+    50% { box-shadow: 0 0 0 6px rgba(31, 207, 125, 0.25); }
+}
+
+/* the actions: performance pads, lit from the rim when they can be pressed */
+.pad {
+    min-width: 168px;
+    padding: 14px 22px;
+    border: 0;
+    border-radius: 10px;
+    font: 600 16px var(--ui);
+    color: #fff;
+    background: linear-gradient(180deg, var(--pad-top), var(--pad));
+    box-shadow: inset 0 0 0 2px var(--led), 0 0 14px rgba(31, 207, 125, 0.45), 0 2px 0 #11151a;
+    cursor: pointer;
+}
+.pad:hover { background: linear-gradient(180deg, #3a4250, var(--pad-top)); }
+.pad:active { transform: translateY(1px); box-shadow: inset 0 0 0 2px var(--led), 0 0 22px rgba(31, 207, 125, 0.7), 0 1px 0 #11151a; }
+.pad:disabled { cursor: default; color: #aab2bc; background: #d2d8de; box-shadow: inset 0 0 0 1px #bcc4cd; transform: none; }
+.pad.quiet { color: var(--ink); background: transparent; box-shadow: inset 0 0 0 1px var(--line); }
+.pad.quiet:hover { background: rgba(255, 255, 255, 0.5); }
+.pad.quiet:disabled { color: var(--off); background: transparent; box-shadow: inset 0 0 0 1px #d0d6dd; }
+.pad[hidden] { display: none; }
+
+.link {
+    padding: 4px 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--line);
+    text-underline-offset: 4px;
+    cursor: pointer;
+}
+.link:hover { text-decoration-color: currentColor; }
+.link:disabled { color: var(--off); cursor: default; text-decoration: none; }
+
+/* sticks and decks to choose from */
+.chips { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0 8px; }
+.chips:empty { display: none; }
+.chip {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: #fff;
+    font: inherit;
+    color: var(--ink);
+    cursor: pointer;
+    text-align: right;
+}
+.chip small { display: block; color: var(--mute); font-size: 12px; }
+.chip[aria-checked="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+
+.ipline { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ipline label { color: var(--mute); }
+.ipline input {
+    width: 170px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font: 15px var(--ui);
+    background: #fff;
+    color: var(--ink);
+}
+.ipline input::placeholder { color: #a3abb5; }
+
+.foot { display: flex; gap: 22px; align-items: center; margin-top: 22px; font-size: 14px; }
+.foot .grow { flex: 1; }
+.details {
+    margin: 14px 0 0;
+    padding: 14px 16px;
+    max-height: 260px;
+    overflow: auto;
+    border-radius: 8px;
+    background: var(--lcd);
+    color: var(--lcd-ink);
+    font: 12px/1.5 Consolas, "Cascadia Mono", monospace;
+    white-space: pre-wrap;
+}
+
+dialog {
+    border: 0;
+    border-radius: 14px;
+    padding: 26px 28px;
+    max-width: 440px;
+    background: var(--plate);
+    color: var(--ink);
+    box-shadow: 0 0 0 1px var(--line), 0 18px 50px rgba(10, 16, 24, 0.35);
+}
+dialog::backdrop { background: rgba(21, 28, 37, 0.45); }
+dialog h3 { margin: 0 0 8px; font-size: 18px; }
+dialog p { margin: 0 0 20px; color: var(--mute); }
+dialog .row { display: flex; gap: 18px; align-items: center; }
+
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+@media (max-width: 860px) {
+    main { padding: 24px 16px; }
+    .top { grid-template-columns: 1fr; gap: 24px; }
+    .step { grid-template-columns: 40px 1fr; padding: 20px 16px; }
+    .step .act { grid-column: 2; }
+    .led { width: 32px; height: 32px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .step.busy .led { animation: none; }
+    .lcd li .boxes, .lcd li .letters { transition: none; }
+}

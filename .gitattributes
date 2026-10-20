@@ -1,0 +1,6 @@
+# Everything keeps LF on Windows too (the build runs in WSL, the deck runs the scripts),
+# except the cmd file, which cmd.exe reads
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.patch -text
+*.gz binary

@@ -1,0 +1,31 @@
+Hebrew mod for AZ-MODS
+
+This program is free software: you can redistribute it and/or modify it under the terms of
+the GNU General Public License as published by the Free Software Foundation, version 3
+(GPL-3.0-only). See LICENSE.
+
+It modifies and builds AZ-MODS (https://github.com/Kyle-Hosman/xdj-az-mods, GPL-3.0-only,
+Copyright (C) 2026 Kyle Hosman), whose source the launcher downloads at the commit named in
+azmods/BASE. It is not part of AZ-MODS and not an official AZ-MODS release. It is not
+affiliated with, endorsed by, or supported by AlphaTheta Corporation or Pioneer DJ. No part
+of the deck's firmware is included here.
+
+Third-party parts
+-----------------
+
+azmods/files/src/azmod/heb_glyphs.h and azmods/files/src/azmod/heb_keys.h
+  Hebrew glyph outlines and key images made from DejaVu Sans Bold by
+  azmods/files/tools/hebrew-assets.py. DejaVu fonts, Copyright (c) 2003 by Bitstream, Inc.
+  (Bitstream Vera is a trademark of Bitstream, Inc.); DejaVu changes are in the public
+  domain. Bitstream Vera Fonts license, full text in
+  azmods/files/src/azmod/LICENSE-DEJAVU-FONTS, https://dejavu-fonts.github.io/License.html
+
+azmods/files/src/azmod/bidi_tables.h
+  Generated from the Unicode Character Database (BidiBrackets.txt, BidiMirroring.txt and
+  the Bidi_Class property). Unicode data files: Copyright (c) Unicode, Inc., Unicode
+  License v3, https://www.unicode.org/license.txt
+
+What the launcher downloads to build (pinned by SHA-256 in launcher/build-azmod.sh, not
+included here): Bootlin's aarch64 glibc toolchain (https://toolchains.bootlin.com) and
+Ubuntu 18.04's arm64 libx11, libxext, libfreetype and x11proto packages, each under its
+own license.
