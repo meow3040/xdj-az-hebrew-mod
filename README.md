@@ -8,11 +8,27 @@
 - **ימין לשמאל**: עברית נקראת מימין לשמאל, ואנגלית ומספרים נשארים בסדר שלהם, למשל `שיר (Remix)` או `Artist - שיר`. שם ארוך מדי נחתך משמאל עם "...", כך שתחילת השם נשארת על המסך.
 - **מקלדת עברית בחיפוש**: מקלדת החיפוש נפתחת בעברית. 123 עובר לאנגלית, ו-ABC בעמוד המספרים חוזר לעברית.
 
-הכול נבנה לתוך `azmod.so` של AZ-MODS, עם שורה משלו ב-Mod Menu: **Hebrew**, ובתוכה **Right to Left** ו-**Hebrew Keyboard**.
+ב-Mod Menu יש לו שורה משלו: **Hebrew**, ובתוכה **Right to Left** ו-**Hebrew Keyboard**.
+
+## התקנה מהדק עצמו (הכי פשוט)
+
+המוד זמין כ-Community Mod, וההתקנה לא צריכה מחשב:
+
+1. בדק: **Mod Menu** ← **Community Mods** ← **Repositories** ← **Add**, ומקלידים:
+
+   ```
+   meow3040/xdj-az-hebrew-mod
+   ```
+
+2. **Browse** ← **Hebrew** ← **Install**, ואז **Reload**.
+
+אפשר לעשות את אותו הדבר באפליקציית AZ-MODS במחשב, עם **Add repository**. המוד נשאר מותקן גם כש-AZ-MODS מתעדכן. הוא דורש AZ-MODS 1.2.3 ומעלה וקושחה 2.00 או 2.01. פרטים: [community/README.md](community/README.md).
+
+## או: מובנה בתוך AZ-MODS, עם הלאנצ'ר (Windows)
+
+הדרך השנייה בונה את העברית לתוך `azmod.so` של AZ-MODS עצמו.
 
 <img src="docs/launcher.png" width="720" alt="חלון הלאנצ'ר: בנייה, העתקה לדיסק-און-קי והפעלה בדק">
-
-## התקנה עם הלאנצ'ר (Windows)
 
 1. מורידים את הריפו (Code ואז Download ZIP) ומחלצים.
 2. לוחצים פעמיים על **`AZ-Hebrew-Launcher.cmd`**. נפתח חלון עם שלושה צעדים:
@@ -42,6 +58,8 @@
 | `azmods/files/` | הקבצים החדשים של המוד, במקומות שלהם בעץ של AZ-MODS. הלב: `src/azmod/hebrew.c` |
 | `azmods/hebrew.patch` | השינויים הקטנים בקבצים הקיימים של AZ-MODS: השורות ב-Mod Menu, ההתקנה של ה-hooks, טסטים ותיעוד |
 | `launcher/` | הלאנצ'ר: `app.py` (המנוע), `web/` (החלון), `build-azmod.sh` (הבנייה ב-WSL), `deck.sh` (מה שרץ בדק) |
+| `community/` | גרסת ה-Community Mod: `meow3040-hebrew.c`, `azmod.json`, האייקון |
+| `azmods-repo.json` | הקובץ שהדק והאפליקציה קוראים כשמוסיפים את הריפו ב-Community Mods |
 
 הלאנצ'ר מוריד את קוד המקור הרשמי של AZ-MODS לפי הקומיט שב-`BASE`, מוסיף את `files/`, מחיל את `hebrew.patch` ובונה. פירוט טכני: [launcher/README.md](launcher/README.md).
 
@@ -54,10 +72,15 @@
 A Hebrew mod for [AZ-MODS](https://github.com/Kyle-Hosman/xdj-az-mods) on the Pioneer
 XDJ-AZ: Hebrew letters wherever the deck writes names, right-to-left lines (the Unicode
 Bidirectional Algorithm, with English words and numbers kept in order), and a Hebrew page on
-the search keyboard. It is built into AZ-MODS' `azmod.so`, behind its own Mod Menu row,
-**Hebrew**. The hooks install only when that row is on.
+the search keyboard, behind its own Mod Menu row, **Hebrew**.
 
-`azmods/` holds the mod as it lands in the AZ-MODS tree: its own files (`files/`, chiefly
+**Install it from the deck:** Mod Menu > Community Mods > Repositories > Add
+`meow3040/xdj-az-hebrew-mod`, then Browse > Hebrew > Install, and Reload (or **Add repository**
+in the AZ-MODS desktop app). This is the Community Mods edition (`community/`): it needs AZ-MODS
+1.2.3 or newer and firmware 2.00 or 2.01, and it stays installed when AZ-MODS updates.
+
+The other edition is built into AZ-MODS itself. `azmods/` holds the mod as it lands in the
+AZ-MODS tree: its own files (`files/`, chiefly
 `src/azmod/hebrew.c`), a patch for the AZ-MODS files it hooks into (`hebrew.patch`), and the
 AZ-MODS commit it applies to (`BASE`). `launcher/` is a Windows launcher
 (`AZ-Hebrew-Launcher.cmd`) that fetches that commit, applies the mod, builds `azmod.so` in WSL

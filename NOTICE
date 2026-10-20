@@ -13,6 +13,10 @@ of the deck's firmware is included here.
 Third-party parts
 -----------------
 
+community/include/azmod-mod.h
+  The AZ-MODS mod interface, the AZ-MODS SDK's header (https://github.com/Kyle-Hosman/az-mods-sdk),
+  GPL-3.0-only, unchanged.
+
 azmods/files/src/azmod/heb_glyphs.h and azmods/files/src/azmod/heb_keys.h
   Hebrew glyph outlines and key images made from DejaVu Sans Bold by
   azmods/files/tools/hebrew-assets.py. DejaVu fonts, Copyright (c) 2003 by Bitstream, Inc.

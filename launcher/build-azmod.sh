@@ -22,8 +22,21 @@
 # The result is checked before it is kept: it needs no glibc newer than 2.27 (the deck has 2.29)
 # and exports exactly the tree's tests/unit/exports-azmod.txt. Progress lines for the launcher start with
 # "@@ ". Exit 0: OUT_DIR/azmod.so written.
+#
+#   build-azmod.sh --community MOD OUT_DIR DOWNLOAD_DIR
+#
+# builds the Community Mods edition instead (MOD/community, see its README) with the same
+# toolchain and the flags of the AZ-MODS SDK's template, into OUT_DIR/<id>.so. It is kept only
+# when it needs no glibc newer than 2.27, exports only az_mod_v1_entry and links only what a
+# deck lets a mod link.
 set -uo pipefail
-MOD=$1 OFFICIAL=$2 OUT=$3 DL=$4
+MODE=azmod
+if [ "${1:-}" = --community ]; then
+    MODE=community
+    MOD=$2 OUT=$3 DL=$4 OFFICIAL=
+else
+    MOD=$1 OFFICIAL=$2 OUT=$3 DL=$4
+fi
 step() { echo "@@ $*"; }
 die() { echo "@@ error $*"; exit 1; }
 
@@ -46,7 +59,7 @@ for t in curl python3 dpkg-deb sha256sum git tar; do
 done
 BASE=$MOD/azmods/BASE
 [ -f "$BASE" ] && [ -f "$MOD/azmods/hebrew.patch" ] && [ -d "$MOD/azmods/files" ] || die "not the Hebrew mod repository: $MOD"
-[ -f "$OFFICIAL" ] || die "no official azmod.so at $OFFICIAL"
+[ "$MODE" = community ] || [ -f "$OFFICIAL" ] || die "no official azmod.so at $OFFICIAL"
 SRC_REPO=$(sed -n 's/^repo=//p' "$BASE") SRC_COMMIT=$(sed -n 's/^commit=//p' "$BASE")
 echo "$SRC_COMMIT" | grep -qE '^[0-9a-f]{40}$' && [ -n "$SRC_REPO" ] || die "azmods/BASE names no repository and commit"
 mkdir -p "$OUT" "$DL" || die "cannot create $OUT or $DL"
@@ -90,6 +103,43 @@ for t in gcc nm objcopy readelf; do
     [ -x "$B/aarch64-linux-$t" ] || die "the toolchain has no aarch64-linux-$t"
 done
 SR=$CACHE/sysroot/usr
+NO_OUTLINE_ATOMICS=$(printf 'int main(void){return 0;}\n' | $CC -x c -mno-outline-atomics -c -o /dev/null - 2>/dev/null && echo -mno-outline-atomics)
+# what Ubuntu 18.04's gcc turns on by itself, so the result matches an official build's
+UBUNTU_DEFAULTS="-D_FORTIFY_SOURCE=2 -fstack-protector-strong -Wformat -Wformat-security -Wl,-z,relro -Wl,--as-needed"
+newest_glibc() { "$B/aarch64-linux-readelf" -V "$1" | grep -oE 'GLIBC_[0-9.]+' | sort -t. -k1,1 -k2,2n -k3,3n -u | tail -1; }
+glibc_ok() {
+    case "$1" in GLIBC_2.1[0-9] | GLIBC_2.2[0-7] | "") return 0 ;; esac
+    return 1
+}
+
+if [ "$MODE" = community ]; then
+    # the AZ-MODS SDK template's flags (template/Makefile), plus FreeType's headers: the mod
+    # reads FreeType's structures but links only what a deck allows a mod to link
+    CM=$MOD/community
+    ID=$(sed -n 's/^ *"id": *"\([a-z0-9-]*\)".*/\1/p' "$CM/azmod.json")
+    [ -n "$ID" ] && [ -f "$CM/$ID.c" ] || die "community/azmod.json names no id with a $ID.c"
+    step 3 "compiling the community mod $ID"
+    W=$(mktemp -d) || die "no temporary directory"
+    trap 'rm -rf "$W"' EXIT
+    $CC $UBUNTU_DEFAULTS -O2 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -fno-omit-frame-pointer \
+        -fexceptions -fasynchronous-unwind-tables $NO_OUTLINE_ATOMICS -I"$CM/include" \
+        -I"$MOD/azmods/files/src/azmod" -I"$SR/include/freetype2" -idirafter "$SR/include" \
+        -shared -static-libgcc -Wl,--no-undefined -Wl,--hash-style=gnu \
+        -o "$W/$ID.so" "$CM/$ID.c" -ldl > "$W/compile.log" 2>&1 || { cat "$W/compile.log"; die "the compiler stopped (above)"; }
+    step 5 "checking the result"
+    newest=$(newest_glibc "$W/$ID.so")
+    glibc_ok "$newest" || die "the mod needs $newest, newer than the deck's glibc allows"
+    exports=$("$B/aarch64-linux-nm" -D --defined-only "$W/$ID.so" | awk '{print $3}' |
+        grep -vxE '_init|_fini|_edata|_end|__bss_start|__bss_start__|__bss_end__|_bss_end__|__end__' | tr '\n' ' ')
+    [ "$exports" = "az_mod_v1_entry " ] || die "the mod exports more than az_mod_v1_entry: $exports"
+    for n in $("$B/aarch64-linux-readelf" -d "$W/$ID.so" | sed -n 's/.*(NEEDED).*\[\(.*\)\]/\1/p'); do
+        case "$n" in libc.so.6 | libm.so.6 | libdl.so.2 | libpthread.so.0 | librt.so.1 | libgcc_s.so.1 | \
+            libstdc++.so.6 | ld-linux-aarch64.so.1) ;; *) die "the mod links $n, which a deck refuses" ;; esac
+    done
+    cp -f "$W/$ID.so" "$OUT/$ID.so.new" && mv -f "$OUT/$ID.so.new" "$OUT/$ID.so" || die "cannot write $OUT/$ID.so"
+    step done "$(sha256sum "$OUT/$ID.so" | cut -d' ' -f1) $(stat -c %s "$OUT/$ID.so") $newest"
+    exit 0
+fi
 
 step 3 "fetching AZ-MODS ${SRC_COMMIT:0:7} and adding the Hebrew mod"
 GIT=${XDG_CACHE_HOME:-$HOME/.cache}/az-hebrew-launcher/azmods.git
@@ -115,10 +165,7 @@ python3 "$REPO/tools/extract-assets.py" "$OFFICIAL" > "$W/assets.log" 2>&1 ||
 step 4 "compiling azmod.so (about a minute)"
 cd "$REPO/src" || die "no src"
 mkdir -p out
-NO_OUTLINE_ATOMICS=$(printf 'int main(void){return 0;}\n' | $CC -x c -mno-outline-atomics -c -o /dev/null - 2>/dev/null && echo -mno-outline-atomics)
 AZMOD_CFLAGS="-fexceptions -fasynchronous-unwind-tables -O2 -Wall -Wextra -Werror -fPIC -shared -static-libgcc -Wl,--no-undefined $NO_OUTLINE_ATOMICS -Iazmod -I$SR/include/freetype2 -DAZMOD_RELEASE"
-# what Ubuntu 18.04's gcc turns on by itself, so the result matches the official build's
-UBUNTU_DEFAULTS="-D_FORTIFY_SOURCE=2 -fstack-protector-strong -Wformat -Wformat-security -Wl,-z,relro -Wl,--as-needed"
 $CC $UBUNTU_DEFAULTS $AZMOD_CFLAGS -idirafter "$SR/include" -L"$SR/lib/aarch64-linux-gnu" -o out/azmod.so.full \
     azmod/azmod.c azmod/menu.c azmod/text.c azmod/azconf.c -ldl -lpthread -lX11 -lXext -lfreetype -lm \
     > "$W/compile.log" 2>&1
@@ -133,11 +180,8 @@ grep -ohE '[A-Za-z_][A-Za-z0-9_]*' azmod/caption_strips.h azmod/fxart.h azmod/fx
     azmod/menulabels.h azmod/stems4art.h azmod/srcref.h azmod/wavref.h azmod/onelibkey.h azmod/onelibkey_sm.h |
     sort -u | comm -12 - out/objs > out/keep
 "$B/aarch64-linux-objcopy" --strip-unneeded --keep-symbols=out/keep out/azmod.so.full out/azmod.so || die "strip failed"
-newest=$("$B/aarch64-linux-readelf" -V out/azmod.so | grep -oE 'GLIBC_[0-9.]+' | sort -t. -k1,1 -k2,2n -k3,3n -u | tail -1)
-case "$newest" in
-    GLIBC_2.1[0-9] | GLIBC_2.2[0-7] | "") ;;
-    *) die "the build needs $newest, newer than the deck's glibc allows" ;;
-esac
+newest=$(newest_glibc out/azmod.so)
+glibc_ok "$newest" || die "the build needs $newest, newer than the deck's glibc allows"
 "$B/aarch64-linux-nm" -D --defined-only out/azmod.so | awk '{print $3}' | LC_ALL=C sort > out/exports
 diff out/exports "$REPO/tests/unit/exports-azmod.txt" > out/exports.diff ||
     { cat out/exports.diff; die "the build exports other symbols than tests/unit/exports-azmod.txt"; }

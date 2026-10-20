@@ -1,0 +1,16 @@
+{
+  "azmod": 1,
+  "id": "meow3040-hebrew",
+  "name": "Hebrew",
+  "version": "1.0.0",
+  "author": "meow3040",
+  "summary": "Hebrew names on the deck screen instead of boxes, read right to left, and a Hebrew search keyboard.",
+  "description": "The deck's fonts have no Hebrew, so Hebrew names show as boxes. This mod draws them in Hebrew letters, lays lines holding Hebrew out right to left (English words and numbers keep their order), cuts a long Hebrew name on the left so its beginning stays in view, and opens the search keyboard on a Hebrew page (123 switches to English).\n\nIt patches the deck's code: text layout, FreeType calls and the search keyboard. Its rows turn each part off. No network, no files. Names drawn as boxes before the mod loaded change after a Reload.",
+  "license": "GPL-3.0-only",
+  "source": "https://github.com/meow3040/xdj-az-hebrew-mod",
+  "api": 1,
+  "firmware": ["ep147-9e9454e357389ece"],
+  "hooks": true,
+  "min_core": "1.2.3",
+  "category": "visual"
+}
