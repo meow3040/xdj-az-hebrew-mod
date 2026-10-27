@@ -1,0 +1,189 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* features.def: the list of Mod Menu rows: every official feature, group and utility, in
+ * the order the menu shows them. It is the one place a row is declared; azfeatures.h expands it
+ * into the ids (enum az_feature_id, enum az_action) and the row table, and the menu's lists
+ * are built from it in one loop (azfeatures.c az_display_order).
+ *
+ *   AZ_FEATURE(ENUM, key, label, parent, kind, flags, cfg, ...)
+ *     ENUM    the id: AZF_<ENUM>. Code says az_on(AZF_DRUM_ROLL), never a number.
+ *     key     the azmod.conf key, [a-z0-9-]. A stable public name: community mods read official
+ *             rows by it (row_lookup) and docs/MOD-MENU-KEYS.md lists it. Never rename one;
+ *             the unit tests fail when this list and that table disagree.
+ *     label   the row's text.
+ *     parent  NONE, or the ENUM of an earlier row: the row indents under it and is grayed
+ *             (and inert) while a TOGGLE parent is off. A GROUP parent only groups.
+ *     kind    AZ_ROW_TOGGLE / GROUP / ACTION / SCREEN / CHOICE (azmod-mod.h).
+ *     flags   AZ_ROW_DEFAULT_ON; built-ins only: AZ_ROW_HIDDEN (persisted, never a row),
+ *             AZ_ROW_FORCE_ON (on after every load, whatever was saved), AZ_ROW_SHOW_GATED
+ *             (hidden until az_row_show), AZ_ROW_NO_CHEVRON, AZ_ROW_CHILD_ICONS (azfeatures.h).
+ *     cfg     the row's char in 1.2.2's positional azmod.cfg line 1 (the old AZMOD_ACTION_*
+ *             number), -1 = none. A CHOICE with .radio_n stores its index one-hot over
+ *             cfg..cfg+radio_n-1 (the drum-roll banks). azmod.cfg keeps being written from
+ *             this column (dual write), and 1.2.2's file migrates through it.
+ *     ...     optional fields: .d.help (the right pane's description), .d.choices /
+ *             .d.n_choices / .d.default_choice (CHOICE), .d.on_activate / .d.on_change (named
+ *             callbacks, azfeatures.c), .pane_label (the label in the right pane, where it is not
+ *             the list's), .screen (the azmod_mode a row opens).
+ *
+ *   AZ_ACTION(ENUM, label, parent, kind, flags, screen, ...)
+ *     A utility row (System Info, Pad Colors, Updates, Reload, ...): no value, no key, not in
+ *     azmod.cfg. Its id is AZI_<ENUM> (an item), its index AZA_<ENUM>.
+ *
+ *   AZ_REGISTERED_ROWS()
+ *     Where community mods' rows (azf_register) go: right under Community Mods, before the
+ *     other utilities, so they read as Community Mods' own.
+ *
+ *   AZ_RETIRED(cfg)
+ *     An azmod.cfg slot with no feature: never reused (an old file may carry a '1' there),
+ *     read by nothing, written as '0'. */
+
+/*          ENUM               key                           label                         parent        kind            flags                          cfg */
+/* The master switch for the whole stems feature (azmod.c mirrors it to azstem.enable): the
+ * stem pads, strips and audio. */
+AZ_FEATURE( STEMS,             "stems",                      "Stems",                      NONE,         AZ_ROW_TOGGLE,  0,                              0,
+            .d.help = "Stem pads and stem waveforms for tracks with stems on the USB.\nMake stems with "
+                      "the AZ-MODS app on your computer.")
+/* 0 = stems on BEAT LOOP page 1, BEAT LOOP's own loop pads moved to BEAT LOOP 2 (azmod.c
+ * bl_swap); 1 = stems on BEAT LOOP 2 (EP147 mode 4), page 1 stays native. Read live. */
+AZ_FEATURE( STEM_PADS_PAGE,    "stem-pads-page",             "Stems on BEAT LOOP 2",       STEMS,        AZ_ROW_CHOICE,  0,                              21,
+            .pane_label = "Stem pads replace:", .d.choices = AZ_CHOICES("BEAT LOOP", "BEAT LOOP 2"),
+            .d.help = "Which pad mode shows the stems. The other one keeps its loop pads.")
+/* MENU > MAKE STEMS sends a track or a playlist to the AZ-MODS app, which makes the stems and
+ * writes them back to the USB. */
+AZ_FEATURE( REMOTE_STEMS,      "remote-stems",               "Remote Stems",               STEMS,        AZ_ROW_TOGGLE,  AZ_ROW_DEFAULT_ON,              24,
+            .d.help = "MENU > MAKE STEMS sends tracks to your computer.")
+/* the stem mark on track and playlist rows that have stems; off hides them (a MAKE STEMS job
+ * still animates its rows). Read live. */
+AZ_FEATURE( STEM_MARKS,        "stem-marks",                 "Stem Marks",                 STEMS,        AZ_ROW_TOGGLE,  AZ_ROW_DEFAULT_ON,              29,
+            .d.help = "A small stem mark on tracks and playlists that have stems.")
+/* Color = the four stem-colored tiles; Mono = one ink (white on dark themes, black on Day). */
+AZ_FEATURE( STEM_MARK_STYLE,   "stem-mark-style",            "Stem Mark Style",            STEM_MARKS,   AZ_ROW_CHOICE,  0,                              38,
+            .pane_label = "Mark style:", .d.choices = AZ_CHOICES("Color", "Mono"),
+            .d.help = "Color: the four stem colors. Mono: white, or black in Day.")
+/* 2-deck use: channel 3's / 4's EQ knobs set deck 1's / 2's stem volumes (HI vocals, MID inst
+ * + bass, LOW drums). Off by default: knobs left down would silence stems the moment it came on. */
+AZ_FEATURE( STEM_EQ,           "stem-volume-eq",             "Stem Volume on CH 3/4 EQ",   STEMS,        AZ_ROW_TOGGLE,  0,                              32,
+            .d.help = "HI = vocals, MID = inst + bass, LOW = drums.")
+
+/* the drum-roll sampler (SLIP LOOP + pad 8, played on the X-PAD) */
+AZ_FEATURE( DRUM_ROLL,         "drum-roll",                  "Drum Roll",                  NONE,         AZ_ROW_TOGGLE,  0,                              6,
+            .d.help = "Press pad 8 in SLIP LOOP to arm it, then play it on the X-PAD.\nSamples come from "
+                      "the DRUM ROLLS folder on the USB.")
+/* the DRUM ROLLS/Bank N that plays; stored in azmod.cfg as four one-hot slots 7-10 (the first
+ * '1' wins, none = Bank 1) */
+AZ_FEATURE( DRUM_BANK,         "drum-roll-bank",             "Bank",                       DRUM_ROLL,    AZ_ROW_CHOICE,  0,                              7,
+            .radio_n = 4, .d.choices = AZ_CHOICES("1", "2", "3", "4"),
+            .d.help = "Which DRUM ROLLS bank on the USB plays.")
+/* roll hits lock to the beat grid; locked on in a release build, with no row */
+AZ_FEATURE( BEAT_SYNC,         "drum-roll-beat-sync",        "Beat Sync",                  DRUM_ROLL,    AZ_ROW_TOGGLE,  AZF_RELEASE_LOCKED_ON,          11)
+
+AZ_FEATURE( FPS60,             "fps60",                      "60 FPS",                     NONE,         AZ_ROW_GROUP,   0,                              -1,
+            .d.on_activate = azf_fps60_bypass,   /* its left checkbox: a bypass with memory */
+            .d.help = "Smoother motion on the deck screen.")
+/* JUCE's repaint period 33 ms -> 16 ms for the waveforms */
+AZ_FEATURE( FPS60_WAVEFORMS,   "fps60-waveforms",            "60 FPS Waveforms",           FPS60,        AZ_ROW_TOGGLE,  0,                              4,
+            .d.on_change = azf_fps60_member_changed,
+            .d.help = "Waveforms move at 60 frames per second instead of 30.")
+/* smooth list scrolling: post-paint repaint re-arm, row cache, slow-drag accumulate (the
+ * last two install at EP147 start: "Reload to apply") */
+AZ_FEATURE( FPS60_UI,          "fps60-ui",                   "60 FPS UI",                  FPS60,        AZ_ROW_TOGGLE,  0,                              19,
+            .d.on_change = azf_fps60_member_changed,
+            .d.help = "Smoother scrolling in lists and menus.")
+/* the 60 FPS bypass's memory: which members it switched off (both off = nothing saved) */
+AZ_FEATURE( FPS60_SAVED_WAVEFORMS, "fps60-saved-waveforms",  "",                           FPS60,        AZ_ROW_TOGGLE,  AZ_ROW_HIDDEN,                  30)
+AZ_FEATURE( FPS60_SAVED_UI,    "fps60-saved-ui",             "",                           FPS60,        AZ_ROW_TOGGLE,  AZ_ROW_HIDDEN,                  31)
+
+/* knob-drag reorder and the MENU popup's edits; its hooks install at EP147 start, so switching
+ * it ON takes one Reload */
+AZ_FEATURE( PLAYLIST_EDITING,  "playlist-editing",           "Playlist Editing",           NONE,         AZ_ROW_TOGGLE,  0,                              18,
+            .d.help = "Press the knob down for 1 second to \"grab\" a track, turn the\nknob to move it, "
+                      "then press it again to \"drop\" it.\nPress MENU for copy, paste and edit "
+                      "options.\nWorks for playlists & folders too.")
+/* 1 = a MOVE starts only with SHIFT held while the knob is held; 0 = a plain hold. Read live. */
+AZ_FEATURE( PLAYLIST_GRAB,     "playlist-grab",              "SHIFT + Hold to Move",       PLAYLIST_EDITING, AZ_ROW_CHOICE, 0,                           25,
+            .pane_label = "Browse knob grab:", .d.choices = AZ_CHOICES("PRESS", "SHIFT + PRESS"),
+            .d.help = "Regular PRESS is the default. SHIFT + PRESS is optional.")
+
+/* Day Mode and the dark themes: repaints the whole deck screen natively, switches live
+ * (day_mode.c). The theme itself is azmod.conf's "theme" key (menu.c), not a row value. */
+AZ_FEATURE( THEMES,            "themes",                     "Themes",                     NONE,         AZ_ROW_TOGGLE,  0,                              37,
+            .d.help = "Changes the colors of the whole deck screen. Switches instantly.\nPick a theme "
+                      "below. Turn this off for the stock look.")
+
+AZ_FEATURE( EXTRAS,            "extras",                     "Extras",                     NONE,         AZ_ROW_GROUP,   AZ_ROW_CHILD_ICONS,             -1,
+            .d.help = "Small changes to how the deck works.")
+/* the deck-screen readouts: a switch whose rows live on their own screen (Overlays >) */
+AZ_FEATURE( OVERLAYS,          "overlays",                   "Overlays",                   EXTRAS,       AZ_ROW_TOGGLE,  0,                              14,
+            .screen = AZ_OVERLAYS,
+            .d.help = "FPS, CPU, RAM and temperature on screen.")
+AZ_FEATURE( OVERLAY_FPS,       "overlay-fps",                "FPS",                        OVERLAYS,     AZ_ROW_TOGGLE,  0,                              5)
+AZ_FEATURE( OVERLAY_CPU_TEMP,  "overlay-cpu-temp",           "CPU Temp",                   OVERLAYS,     AZ_ROW_TOGGLE,  0,                              13)
+AZ_FEATURE( OVERLAY_CPU_USAGE, "overlay-cpu-usage",          "CPU Usage",                  OVERLAYS,     AZ_ROW_TOGGLE,  0,                              15)
+AZ_FEATURE( OVERLAY_CPU_CLOCK, "overlay-cpu-clock",          "CPU Clock",                  OVERLAYS,     AZ_ROW_TOGGLE,  0,                              16)
+AZ_FEATURE( OVERLAY_RAM,       "overlay-ram",                "RAM Usage",                  OVERLAYS,     AZ_ROW_TOGGLE,  0,                              17)
+/* the time of day in the place of EP147's status bar readout while it is not recording, once the
+ * system clock is synchronized (clock_native.c, screen_overlays.c): a switch whose rows live on
+ * their own screen (Clock >); the time zone is azmod.conf's "clock.tz" key, picked there. */
+AZ_FEATURE( CLOCK,             "overlay-clock",              "Clock",                      EXTRAS,       AZ_ROW_TOGGLE,  0,                              -1,
+            .screen = AZ_CLOCK,
+            .d.help = "The time of day, top right, while not recording.")
+AZ_FEATURE( CLOCK_24H,         "overlay-clock-24h",          "Time Format",                CLOCK,        AZ_ROW_CHOICE,  0,                              -1,
+            .d.choices = AZ_CHOICES("12-hour", "24-hour"))
+/*          ENUM               label                         parent        kind            flags                          screen */
+AZ_ACTION(  PAD_COLORS,        "Pad Colors",                 EXTRAS,       AZ_ROW_SCREEN,  0,                             AZ_COLORS,
+            .d.help = "Choose the colors of the pad mode buttons.")
+/* the Browse track list changes: a group whose rows live on their own screen (Browse View Mods >) */
+AZ_FEATURE( BROWSE_VIEW,       "browse-view",                "Browse View Mods",           EXTRAS,       AZ_ROW_GROUP,   AZ_ROW_CHILD_ICONS,             -1,
+            .screen = AZ_BROWSE_VIEW,
+            .d.help = "Changes to the Browse track lists.")
+/* the COLUMN EDIT button beside PREVIEW and everything it sets: widths, fields and hidden
+ * columns (browse_edit.c, browse_fields.c), and every library field in the sub column list
+ * (browse_columns.c, from the next Reload). Off = EP147's own columns; what was set is kept. */
+AZ_FEATURE( COLUMN_EDIT,       "column-edit",                "Column Edit",                BROWSE_VIEW,  AZ_ROW_TOGGLE,  0,                              -1,
+            .d.help = "Resize, change or hide the track list columns.")
+/* hot cue marks on the Browse TRACK list's PREVIEW waveforms, from each track's analysis
+ * file (preview_hotcues.c) */
+AZ_FEATURE( PREVIEW_HOT_CUES,  "preview-hot-cues",           "Preview Hot Cues",           BROWSE_VIEW,  AZ_ROW_TOGGLE,  0,                              -1,
+            .d.help = "Hot cue marks on the track list's PREVIEW waveforms.")
+/* entering BEAT JUMP lands on EP147's own BEAT JUMP 2 (8-64 beats) first. Read live. */
+AZ_FEATURE( BEAT_JUMP_2_FIRST, "beat-jump-2-first",          "BEAT JUMP 2 First",          EXTRAS,       AZ_ROW_TOGGLE,  0,                              27,
+            .d.help = "BEAT JUMP opens the 8, 16, 32 and 64 beat jumps first.")
+/* the SHORTCUT screen's VINYL SPEED ADJUST steps become a 1% slider (vinyl_slider.c) */
+AZ_FEATURE( FINE_VINYL_SPEED,  "fine-vinyl-speed",           "Fine Vinyl Speed Adjust",    EXTRAS,       AZ_ROW_TOGGLE,  0,                              28,
+            .d.help = "The SHORTCUT vinyl speed steps become a 1% slider.")
+/* connect to the paired device when EP147's Bluetooth stack has started */
+AZ_FEATURE( BT_AUTO_CONNECT,   "bt-auto-connect",            "Bluetooth Auto-Connect",     EXTRAS,       AZ_ROW_TOGGLE,  0,                              33,
+            .d.help = "Connects to the paired device when Bluetooth starts.")
+/* the channel last set to Bluetooth is set again on connect, back to DECK on disconnect
+ * (settings/azmod-btchannel) */
+AZ_FEATURE( BT_REMEMBER_CHANNEL, "bt-remember-channel",        "Remember Selected Channel", EXTRAS,       AZ_ROW_TOGGLE,  0,                              34,
+            .d.help = "Your Bluetooth channel is set again when a device connects.")
+/* (from the CDJ-3000X) a tap on a deck's track-info bar hides / shows its title */
+AZ_FEATURE( HIDE_TRACK_TITLE,  "hide-track-title",           "Hide Track Title",           EXTRAS,       AZ_ROW_TOGGLE,  0,                              35,
+            .d.help = "Tap a deck's track title to hide it or show it again.")
+/* (from the CDJ-3000X) two bar rulers between the decks' waveforms, from EP147's own
+ * usecase::phase_meter */
+AZ_FEATURE( PHASE_METER,       "phase-meter",                "Phase Meter",                EXTRAS,       AZ_ROW_TOGGLE,  0,                              36,
+            .d.help = "Shows how the two decks line up, above their waveforms.")
+/* the jog spins a track back far past its start, not only 2 s (spin_back.c) */
+AZ_FEATURE( EXTENDED_LEAD_IN, "extended-lead-in",      "Extended Lead-In",        EXTRAS,       AZ_ROW_TOGGLE,  0,                              -1,
+            .d.help = "Spin a track back as far as you like before its start.")
+/* streaming services' keys (and the KEY lists) in Camelot: EP147's own key text, asked for
+ * in Camelot (streaming_key.c) */
+AZ_FEATURE( CAMELOT_KEYS,      "camelot-keys",               "Camelot Keys",               EXTRAS,       AZ_ROW_TOGGLE,  0,                              -1,
+            .d.help = "Streaming tracks' keys in Camelot, like 8A.")
+
+AZ_ACTION(  COMMUNITY,         "Community Mods",             NONE,         AZ_ROW_SCREEN,  0,                             AZ_COMMUNITY)
+
+AZ_REGISTERED_ROWS()
+
+AZ_ACTION(  UPDATE,            "Updates",                    NONE,         AZ_ROW_SCREEN,  AZ_ROW_NO_CHEVRON,             AZ_UPDATE)
+AZ_ACTION(  SYSINFO,           "System Info",                NONE,         AZ_ROW_SCREEN,  0,                             AZ_INFO)
+AZ_ACTION(  RELOAD,            "Reload",                     NONE,         AZ_ROW_ACTION,  0,                             -1,
+            .pane_label = "Reload now",
+            .d.help = "Restarts the deck software to apply changes.\nTakes about 10 seconds.")
+
+/* azmod.cfg slots that are reserved: no feature reads them, they are written as '0' and never
+ * reused. */
+AZ_RETIRED(1) AZ_RETIRED(2) AZ_RETIRED(3) AZ_RETIRED(12) AZ_RETIRED(20) AZ_RETIRED(22)
+AZ_RETIRED(23) AZ_RETIRED(26)

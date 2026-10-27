@@ -1,0 +1,10 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* The rekordbox OneLibrary exportLibrary.db key, in its own header so the public source
+ * export can ship it as a TEMPLATE (filled from an official azmod.so by
+ * tools/extract-assets.py) instead of carrying the key. The include sits where the
+ * definition sits in the translation unit: moving it would renumber static symbols in the
+ * release .so. */
+/* The emulator-only key fix (onelibrary_key_emulator.c sqlite3_key hook, inert without the
+ * emulator flag). */
+static const char ONELIBRARY_KEY[] =
+    /*@string ONELIBRARY_KEY 64 1226445ceceabd206daf103ef3bd1a0ec5ac4a328651f75728b854898f4ceac8 present@*/;

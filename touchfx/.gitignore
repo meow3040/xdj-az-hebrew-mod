@@ -1,0 +1,17 @@
+out/
+dist/
+*.so
+*.full
+*.o
+__pycache__/
+core/src/azmod/caption_strips.h
+core/src/azmod/collabels.h
+core/src/azmod/fxart.h
+core/src/azmod/fxbars.h
+core/src/azmod/fxhdr.h
+core/src/azmod/menulabels.h
+core/src/azmod/onelibkey.h
+core/src/azmod/onelibkey_sm.h
+core/src/azmod/srcref.h
+core/src/azmod/stems4art.h
+core/src/azmod/wavref.h
