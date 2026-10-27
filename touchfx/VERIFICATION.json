@@ -1,0 +1,17 @@
+{
+  "version": "0.8.0",
+  "result": "All three clean-source build binaries match the locally player-tested bundle byte-for-byte.",
+  "sha256": {
+    "azmod.so": "d63aaf84226a09a82d03cbcf54b953d4326889b921655c39b56f95d711b67ad9",
+    "azstem.so": "67a62efa0433ff2adb6096d4356c055ad0d7ab3e37d70af0882aa1a9799e52c4",
+    "mrdjjag-touchfx-test.so": "22e8d8adc49bf8ad402ba35ad5a86f7117f43e4b0483cea3c9a66ac5eb0484c8"
+  },
+  "assets": "All eleven extracted headers match templates and the local official-125 donor. No extracted headers included in public source.",
+  "toolchain": "ARM64 Ubuntu18.04 GCC7, recovered local toolchain image",
+  "limits": [
+    "Does not establish reproduction using a fresh Docker image downloaded today.",
+    "No fresh-USB developer-mode installation test was performed.",
+    "No upstream signing or Mod Index acceptance.",
+    "Core and panel bindings remain exact-hash and firmware specific."
+  ]
+}

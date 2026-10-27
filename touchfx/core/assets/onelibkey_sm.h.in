@@ -1,0 +1,9 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* The rekordbox OneLibrary exportLibrary.db key, in its own header so the public source
+ * export can ship it as a TEMPLATE (filled from an official azmod.so by
+ * tools/extract-assets.py) instead of carrying the key. The include sits where the
+ * definition sits in the translation unit: moving it would renumber static symbols in the
+ * release .so. */
+/* Stems mark reader (stem_marks.c sm_*) and the SDK library reader (sdk_lib.c): read-only
+ * opens of the stick DB. */
+#define ONELIBRARY_KEY_SM /*@string ONELIBRARY_KEY 64 1226445ceceabd206daf103ef3bd1a0ec5ac4a328651f75728b854898f4ceac8 present@*/

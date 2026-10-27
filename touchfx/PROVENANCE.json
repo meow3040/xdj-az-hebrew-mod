@@ -1,0 +1,7 @@
+{
+  "upstream": "https://github.com/Kyle-Hosman/xdj-az-mods",
+  "local_upstream_commit": "214a058b94120ec6c15070abddd6d04bbffef230",
+  "sdk_commit": "3dcaf8f7331ea94135d7161f653edfaf906d5ea6",
+  "panel_version": "0.8.0",
+  "note": "Modified core/audio snapshots; commit identifies local upstream checkout, not proof every snapshot started at that commit. Firmware-derived arrays omitted; recover using matching official library and supplied extractor."
+}

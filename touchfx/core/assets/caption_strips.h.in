@@ -1,0 +1,16 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* caption_strips.h - the two pad-caption strips the DRUM ROLL caption
+ * swap flips between, embedded in azmod (see drum_roll_display.c caption_pointer_set).
+ *
+ * g_caption_drumroll_png - composed from native caption glyphs by
+ *   compose_drumroll.py, a project tool, not included (D KEYBOARD, R SAMPLER,
+ *   U AUTO LOOP, M SAMPLER, O/L SLIP LOOP).
+ * g_caption_sliploop_png - the NATIVE SLIP LOOP strip, extracted from
+ *   EP147 rodata (file offset = vaddr 0x2d8c300 - 0x400000). This is
+ *   what the caption must show when pad 8 is not latched. */
+
+static const unsigned char g_caption_drumroll_png[] = {/*@asset g_caption_drumroll_png 603 d2aa6e919bcca48a0a1a0051873ec6eceef10474dcff008f335bd18e9beae7e9 present@*/};
+static const unsigned g_caption_drumroll_png_len = sizeof g_caption_drumroll_png;
+
+static const unsigned char g_caption_sliploop_png[] = {/*@asset g_caption_sliploop_png 704 8014e427d4d5e3b037e8428f81e293472d8c9a59b4b954e2ac347d60016e05a7 present@*/};
+static const unsigned g_caption_sliploop_png_len = sizeof g_caption_sliploop_png;

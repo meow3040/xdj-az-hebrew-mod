@@ -1,0 +1,19 @@
+{
+  "azmod": 1,
+  "id": "mrdjjag-touchfx-test",
+  "name": "Touch FX",
+  "version": "0.8.0",
+  "author": "mrdjjag",
+  "summary": "Touch FX for prepared STEMS and sampler, with adaptive layouts and custom touch controls.",
+  "description": "Custom-build beta for XDJ-AZ. Requires matching customised azmod.so and azstem.so; the .azmod alone is not a complete installation. STEMS Touch FX requires tracks separated using Kyle's AZ-MODS Mod Manager, with STEMS enabled on the selected deck. Sampler uses its own samples. See the source repository for firmware compatibility, build and developer-mode installation requirements.",
+  "license": "GPL-3.0-only",
+  "source": "https://github.com/mrdjjag/az-touchfx-test",
+  "api": 1,
+  "firmware": [
+    "ep147-9e9454e357389ece"
+  ],
+  "hooks": false,
+  "min_core": "1.2.3",
+  "category": "audio",
+  "beta": true
+}

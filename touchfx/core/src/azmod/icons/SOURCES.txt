@@ -1,0 +1,16 @@
+CoreUI Icons Free 3.0.1 (npm @coreui/icons@3.0.1), fetched from https://cdn.jsdelivr.net/npm/@coreui/icons@3.0.1/svg/free/
+Upstream: https://github.com/coreui/coreui-icons  Creator: creativeLabs Lukasz Holeczek (https://coreui.io)
+Icons license: CC BY 4.0 (see LICENSE-COREUI-ICONS). Files below are unmodified; SHA-256 re-verifiable against the URL.
+3f18752fcc99f667f30d8cab0d08c45e114b10d66b6aa55644293b9e871c915a  cil-reload.svg
+8158762250811e745b96e85f862a2d40a21b9e9027d2bae38065538195fe6df1  cil-arrow-left.svg
+70a866194ee598db5c3bc3f3f2fc20dd1ed748ea726c930ba57125cb88c15336  waveform-svgrepo.svg  (not CoreUI: Framework7 Icons "waveform", MIT, https://github.com/framework7io/framework7-icons; via https://www.svgrepo.com/svg/416395/waveform)
+fd203b8b4805149f161303d0fa51175b87287e9640746577d8ea408aee9502d0  info-circle-svgrepo.svg  (not CoreUI: Solar icon set by 480 Design, "info circle" outline, CC BY 4.0, https://www.figma.com/community/file/1166831539721848736; via svgrepo.com)
+8888e8b6ec14f91bd5609ddcdb82613a7d3cc76dc7d2b6e230982be0ab44eab9  cil-bolt.svg
+64799b8a8f6430937a0ef1cdfa020cf35aa9589a928e7e85297f0ff39e625bcc  cil-data-transfer-down.svg
+5f92af2bf5e25552e50c31bae18740ce6a887083dc7754cadff97c6089331884  drum.svg  (not CoreUI: drawn for this project, GPL-3.0-only like the rest of the source)
+345a94062cfd95f8d163fed5a5bb7dc8431143c3ef9e39f9542ccf22fa221ec8  gauge.svg  (not CoreUI: drawn for this project, GPL-3.0-only like the rest of the source)
+46106d155d2bc3afef4e0bb9fd46a6d6bc97e2fd51f32f8f3376ab5ab76ba64b  cil-check-circle.svg
+d3675a0f6600a4d9a9c18529674d189128ecaf74451a62611694b4d18942d760  cil-compass.svg
+b6c1e26268af2c0452ab3e605cb8456ca3b0817fb46cc89ce0be04085037234c  cil-storage.svg
+5911b3ab6e2752fbcd6aca7038e4a0ce006e9be9dfd63a2c7ad9326d63254f6a  cil-sort-ascending.svg
+f51140e9c38dbd76b26a263e9679ada136cf58443ef7b519af13da052343d25b  cil-chevron-bottom.svg
